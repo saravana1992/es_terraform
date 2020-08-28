@@ -10,6 +10,7 @@
     {
       "type": "googlecompute",
       "project_id": "{{user `PROJECT_NAME`}}",
+      "account_file": "account.json",
       "source_image_family": "ubuntu-1804-lts",
       "ssh_username": "ubuntu",
       "zone": "{{user `PROJECT_ZONE`}}",
