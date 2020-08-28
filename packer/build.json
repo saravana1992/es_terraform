@@ -1,0 +1,44 @@
+{
+  "variables": {
+    "BUILD_NUMBER": "1",
+    "GOOGLE_APPLICATION_CREDENTIALS": "{{env `GOOGLE_APPLICATION_CREDENTIALS`}}",
+    "PROJECT_NAME": "loyal-weaver-285602",
+    "PROJECT_ZONE": "asia-southeast2-a",
+    "GCS_BUCKET": "packer-img"
+  },
+  "builders": [
+    {
+      "type": "googlecompute",
+      "project_id": "{{user `PROJECT_NAME`}}",
+      "source_image_family": "ubuntu-1804-lts",
+      "ssh_username": "ubuntu",
+      "zone": "{{user `PROJECT_ZONE`}}",
+      "image_name": "elasticsearch-7-{{user `BUILD_NUMBER`}}",
+      "image_family": "elasticsearch",
+      "preemptible": true
+    }
+  ],
+  "provisioners": [
+    {
+      "type": "shell",
+      "script": "./install.sh",
+      "execute_command": "sudo sh -c '{{ .Vars }} {{ .Path }}'"
+    },
+    {
+      "type": "shell",
+      "script": "./stackdriver.sh",
+      "execute_command": "sudo sh -c '{{ .Vars }} {{ .Path }}'"
+    }
+  ],
+  "post-processors": [
+    {
+      "type": "googlecompute-export",
+      "paths": [
+        "gs://{{user `GCS_BUCKET`}}/elasticsearch-7-disk-latest.tar.gz",
+        "gs://{{user `GCS_BUCKET`}}/elasticsearch-7-disk-{{user `BUILD_NUMBER`}}.tar.gz"
+      ],
+      "keep_input_artifact": false,
+      "only": ["googlecompute"]
+    }
+  ]
+}
